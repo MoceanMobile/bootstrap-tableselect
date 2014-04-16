@@ -4,6 +4,9 @@
  * @author Birkir Gudjonsson (birkir.gudjonsson@gmail.com)
  * @copyright (c) 2013
  * @licence http://www.apache.org/licenses/LICENSE-2.0
+ * @modified Joel Garcia - 2013/11/01
+ * @modified Alex Fedorov - 2014/02/12
+ * @modified Andrey F. Kupreychik - 2014/02/12
  */
 (function ($) {
 
@@ -41,10 +44,14 @@
                 }
             }
 
-            this.select(row);
+            if (this.keyCtrl == true && row.hasClass(this.options.activeClass)){
+                row.removeClass(this.options.activeClass);
+            } else {
+                this.select(row);
+                // set last selected
+                this.lastSelected = row.index();
+            }
 
-            // set last selected
-            this.lastSelected = row.index();
         },
 
         clear: function () {
@@ -56,7 +63,9 @@
             var that = this,
                 e = $.Event('select');
             elm.each(function () {
-                $(this).addClass(that.options.activeClass);
+                if($(this).css('display') != 'none') {
+                    $(this).addClass(that.options.activeClass);
+                }
                 that.rows.push($(this).index());
             });
             this.$element.trigger(e, [this.rows]);
@@ -72,11 +81,25 @@
             $(document).on('keydown keyup', function (e) {
 
                 if (e.type === 'keydown') {
-                    that.$element.attr('unselectable', 'on').on('selectstart', false);
+                    that.$element
+                        .attr('unselectable', 'on')
+                        .css({
+                            '-moz-user-select'   : 'none',
+                            '-webkit-user-select': 'none',
+                            'user-select'        : 'none'
+                        })
+                        .on('selectstart', false);
                 }
 
                 if (e.type === 'keyup') {
-                    that.$element.attr('unselectable', 'off').off('selectstart');
+                    that.$element
+                        .attr('unselectable', 'off')
+                        .css({
+                            '-moz-user-select'   : '',
+                            '-webkit-user-select': '',
+                            'user-select'        : ''
+                        })
+                        .off('selectstart');
                 }
 
                 if (e.keyCode === 16) {
@@ -87,7 +110,7 @@
                     that.keyCtrl = (e.type === 'keydown');
                 }
 
-                if (e.type === 'keydown' && e.keyCode === 65) {
+                if (e.type === 'keydown' && e.keyCode === 65 && that.keyCtrl == true) {
                     that.select(that.$element.children('tbody').children('tr'));
                     e.stopPropagation();
                     e.preventDefault();
@@ -120,7 +143,7 @@
 
     $.fn.tableselect.defaults = {
         multiple: true,
-        activeClass: 'warning' // success, error, warning, info
+        activeClass: 'highlighted' // success, error, warning, info
     };
 
     /* TABLESELECT NO CONFLICT
