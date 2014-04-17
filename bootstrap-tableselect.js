@@ -74,12 +74,10 @@
         listen: function () {
             var that = this;
 
-            this.$element.children('tbody').children('tr')
-                .on('click', $.proxy(this.click, this))
-                .on('dblclick', $.proxy(this.dblclick, this));
+            this.$element.delegate('tbody > tr', 'click.tableselect', $.proxy(this.click, this));
+            this.$element.delegate('tbody > tr', 'dblclick.tableselect', $.proxy(this.dblclick, this));
 
-            $(document).on('keydown keyup', function (e) {
-
+            $(document).on('keydown.tableselect keyup.tableselect', function (e) {
                 if (e.type === 'keydown') {
                     that.$element
                         .attr('unselectable', 'on')
@@ -117,6 +115,12 @@
                     return false;
                 }
             });
+        },
+
+        remove: function() {
+            this.$element.undelegate('.tableselect');
+            $('document').off('.tableselect');
+            delete this.$element.data().tableselect;
         }
     };
 
