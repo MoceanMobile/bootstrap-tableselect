@@ -54,6 +54,10 @@
 
         },
 
+        dblclick: function (e) {
+            // event handler placeholder
+        },
+
         clear: function () {
             this.$element.children('tbody').children('tr').removeClass(this.options.activeClass);
             this.rows = [];
